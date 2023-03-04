@@ -38,7 +38,7 @@ const timeBuilder = (timezone) => {
 const dateBuilder = (for_dateBuilder) => {
 
   get_date = new Date(for_dateBuilder);
-  
+
   let month = get_date.toLocaleString("default", { month: 'long' });
   let date = get_date.toLocaleString("in-IN", { day: "numeric" });
   let year = get_date.toLocaleString("in-IN", { year: "numeric" });
@@ -56,6 +56,15 @@ $(document).ready(function () {
       $(".suggestion-search-wrap").hide(200);
     }
   }
+
+
+  // DEFAUlT HIDE
+  $(".title-weather").hide();
+  $(".detail-location").hide();
+  $(".lar-weather-icon").hide();
+  $(".sub-info-wrap").hide();
+  $(".sub-content-wrap").hide();
+  $("footer").hide();
 
   // $("#city-input").focus(function(){
   //   $(".suggestion-search-wrap").show(200);
@@ -88,13 +97,13 @@ $(document).ready(function () {
         for (let ind = 0; ind < data.length; ind++) {
           const result_city = data[ind].name;
           var result_country = data[ind].country;
+          var result_country_id = result_country;
           const convert_country = new Intl.DisplayNames(
             ['id'], { type: 'region' }
           );
           result_country = convert_country.of(result_country);
-          result_country_func = result_country.split(' ').join('_');
           suggestion_wrap.innerHTML += `
-        <div onclick="search_for('${result_city}', '${result_country_func}')" class="suggestion-search">${result_city}, ${result_country}</div>
+        <div onclick="search_for('${result_city}', '${result_country_id}')" class="suggestion-search">${result_city}, ${result_country}</div>
         `;
         }
 
@@ -134,18 +143,15 @@ function search_for(mycity, mycountry) {
   console.log(mycity);
   const apiKey = 'c0c083bc03d9f002ce678129d69335ba';
   const get_country = mycountry.split('_').join(' ');
-  $.get(`https://api.openweathermap.org/data/2.5/forecast?q=${mycity},${mycountry}&appid=${apiKey}&units=metric`, function (data) {
-    console.log(data);
-    for (let i = 0; i < data.list.length; i++) {
-      const forecast = data.list[i];
-      const date = new Date(forecast.dt * 1000).toLocaleDateString();
-      const jam = forecast.dt_txt;
-      const temp = forecast.main.temp.toFixed(1);
-      const desc = forecast.weather[0].description;
-      const icon = forecast.weather[0].icon;
-    }
+  $.get(`https://api.openweathermap.org/data/2.5/forecast?q=${mycity},${get_country}&appid=${apiKey}`, function (data) {
+    console.log("SEARCH FOR: ", data);
+
+    get_data_city(data);
+    cityFound();
   }, "json");
 }
+
+
 
 
 
@@ -157,127 +163,216 @@ $(document).ready(function () {
     var rand_num = Math.floor(Math.random() * data.length);
     const rand_city = data[rand_num].capital;
     $.get(`https://api.openweathermap.org/data/2.5/forecast?q=${rand_city}&appid=${apiKey}`, function (data_city) {
-      const convert_country = new Intl.DisplayNames(
-        ['id'], { type: 'region' }
-      );
 
-      const get_main_weather = data_city.list[0].weather[0].main;
-      const get_city = data_city.city.name;
-      const get_country_id = data_city.city.country;
-      const get_country = convert_country.of(get_country_id);
-      const get_main_time = timeBuilder(data_city.city.timezone);
-      const get_icon = data_city.list[0].weather[0].icon;
-      const get_weather_icon = `http://openweathermap.org/img/w/${get_icon}.png`;
-      const temp = Math.round(data_city.list[0].main.temp - 273.15);
-      const temp_min = Math.round(data_city.list[0].main.temp_min - 273.15);
-      const temp_max = Math.round(data_city.list[0].main.temp_max - 273.15);
-      const pressure = data_city.list[0].main.pressure;
-      const humidity = data_city.list[0].main.humidity;
-      const wind_speed = data_city.list[0].wind.speed;
-      const wind_dir = data_city.list[0].wind.deg;
+      get_data_city(data_city);
+      cityFound();
+    }, "json").fail(function () {
+      // cityNotFound();
+    });
+  }, "json").fail(function () {
+    // cityNotFound();
+  });
+});
 
-      // get direction compass
-      var wind_direct = "";
-      if(wind_dir == 360 || wind_dir == 0){
-        wind_direct = "N";
-      } else if(wind_dir < 90){
-        wind_direct = "NE";
-      } else if(wind_dir == 90){
-        wind_direct = "E";
-      } else if(wind_dir < 180){
-        wind_direct = "SE";
-      } else if(wind_dir == 180){
-        wind_direct = "S";
-      } else if(wind_dir < 270){
-        wind_direct = "SW";
-      } else if(wind_dir == 270){
-        wind_direct = "W";
-      } else if(wind_dir < 360){
-        wind_direct = "NW";
+
+function cityFound(params) {
+  $(".title-weather").hide();
+  $(".detail-location").hide();
+  $(".lar-weather-icon").hide();
+  $(".sub-info-wrap").hide();
+  $(".sub-content-wrap").hide();
+  setTimeout(() => {
+    $(".title-weather").show(200);
+    $(".detail-location").show(200);
+    $(".lar-weather-icon").show(200);
+    $(".sub-info-wrap").show(200);
+    $(".sub-content-wrap").show(200);
+    $("footer").show(200);
+  }, 250);
+}
+
+
+
+
+
+
+
+
+function get_data_city(data_city) {
+  const convert_country = new Intl.DisplayNames(
+    ['id'], { type: 'region' }
+  );
+
+  // AUTO UPDATE FORECAST LIST
+  sub_content_wrap.innerHTML = '';
+
+  const get_main_weather = data_city.list[0].weather[0].main;
+  const get_city = data_city.city.name;
+  const get_country_id = data_city.city.country;
+  const get_country = convert_country.of(get_country_id);
+  const get_main_time = timeBuilder(data_city.city.timezone);
+  const get_icon = data_city.list[0].weather[0].icon;
+  const get_weather_icon = `http://openweathermap.org/img/w/${get_icon}.png`;
+  const temp = Math.round(data_city.list[0].main.temp - 273.15);
+  const temp_min = Math.round(data_city.list[0].main.temp_min - 273.15);
+  const temp_max = Math.round(data_city.list[0].main.temp_max - 273.15);
+  const pressure = data_city.list[0].main.pressure;
+  const humidity = data_city.list[0].main.humidity;
+  const wind_speed = data_city.list[0].wind.speed;
+  const wind_dir = data_city.list[0].wind.deg;
+
+  // get direction compass
+  var wind_direct = "";
+  if (wind_dir == 360 || wind_dir == 0) {
+    wind_direct = "N";
+  } else if (wind_dir < 90) {
+    wind_direct = "NE";
+  } else if (wind_dir == 90) {
+    wind_direct = "E";
+  } else if (wind_dir < 180) {
+    wind_direct = "SE";
+  } else if (wind_dir == 180) {
+    wind_direct = "S";
+  } else if (wind_dir < 270) {
+    wind_direct = "SW";
+  } else if (wind_dir == 270) {
+    wind_direct = "W";
+  } else if (wind_dir < 360) {
+    wind_direct = "NW";
+  }
+
+  const feelslike = Math.round(data_city.list[0].main.feels_like - 273.15);
+  const cloud = data_city.list[0].clouds.all;
+
+  title_weather.innerHTML = get_main_weather;
+  detail_location.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${get_city}, ${get_country}<br>${get_main_time}`;
+  lar_weather_icon.src = get_weather_icon;
+  main_temp.innerHTML = temp + "&deg;C";
+  main_temp_min.innerHTML = temp_min + "&deg;C";
+  main_temp_max.innerHTML = temp_max + "&deg;C";
+  main_pressure.innerHTML = pressure + "hPa";
+  main_humidity.innerHTML = humidity + "%";
+  main_windspeed.innerHTML = wind_speed + "m/s";
+  main_winddir.innerHTML = wind_dir + "&deg;" + wind_direct;
+  main_feelslike.innerHTML = feelslike + "&deg;C";
+  main_cloud.innerHTML = cloud + "%";
+
+  for (let day = 0; day < data_city.list.length; day += 1) {
+
+    console.log("SHOW ALL DAY", data_city.list[day]);
+
+    var get_date_forecast = data_city.list[day].dt_txt;
+    get_date_forecast = get_date_forecast.split(' ');
+    get_date_forecast = dateBuilder(get_date_forecast[0]);
+
+    var get_temp_min_forecast = data_city.list[day].main.temp_min;
+    var get_temp_max_forecast = data_city.list[day].main.temp_max;
+
+    get_temp_min_forecast = Math.round(get_temp_min_forecast - 273.15);
+    get_temp_max_forecast = Math.round(get_temp_max_forecast - 273.15);
+
+    if (get_temp_min_forecast < 0) {
+      get_temp_min_forecast = `(${get_temp_min_forecast})`;
+    }
+
+    if (get_temp_max_forecast < 0) {
+      get_temp_max_forecast = `(${get_temp_max_forecast})`;
+    }
+
+    if (day % 8 == 0) {
+
+      console.log("DAY: ", day);
+      console.log("SHOW EVERY 8 TIMES", data_city.list[day]);
+
+      function get_weather(ke) {
+        var get_weather_next_time = data_city.list[day + ke].weather[0].main;
+        return get_weather_next_time;
       }
 
-      const feelslike = data_city.list[0].main.feels_like;
-      const cloud = data_city.list[0].clouds.all;
+      function get_clouds(ke) {
+        var get_clouds_next_time = data_city.list[day + ke].clouds.all;
+        return get_clouds_next_time;
+      }
 
-        title_weather.innerHTML = get_main_weather;
-        detail_location.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${get_city}, ${get_country}<br>${get_main_time}`;
-        lar_weather_icon.src = get_weather_icon;
-        main_temp.innerHTML = temp + "&deg;C";
-        main_temp_min.innerHTML = temp_min + "&deg;C";
-        main_temp_max.innerHTML = temp_max + "&deg;C";
-        main_pressure.innerHTML = pressure + "hPa";
-        main_humidity.innerHTML = humidity + "%";
-        main_windspeed.innerHTML = wind_speed + "m/s";
-        main_winddir.innerHTML = wind_dir + "&deg;" + wind_direct;
-        main_feelslike.innerHTML = feelslike + "&deg;C";
-        main_cloud.innerHTML = cloud + "%";
-
-      for (let day = 0; day < data_city.list.length; day += 8) {
-        console.log(data_city.list[day]);
-
-        var get_date_forecast = data_city.list[day].dt_txt;
-        get_date_forecast = get_date_forecast.split(' ');
-        get_date_forecast = dateBuilder(get_date_forecast[0]);
-
-        var get_temp_min_forecast = data_city.list[day].main.temp_min;
-        var get_temp_max_forecast = data_city.list[day].main.temp_max;
-
-        get_temp_min_forecast = Math.round(get_temp_min_forecast - 273.15);
-        get_temp_max_forecast = Math.round(get_temp_max_forecast - 273.15);
-
-        if(get_temp_min_forecast < 0){
-          get_temp_min_forecast = `(${get_temp_min_forecast})`;
+      function get_tempmax(ke) {
+        var get_tempmax_next_time = Math.round(data_city.list[day + ke].main.temp_max - 273.15);
+        if (get_tempmax_next_time < 0) {
+          return `(${get_tempmax_next_time})`;
+        } else {
+          return get_tempmax_next_time;
         }
+      }
 
-        if(get_temp_max_forecast < 0){
-          get_temp_max_forecast = `(${get_temp_max_forecast})`;
+      function get_tempmin(ke) {
+        var get_tempmin_next_time = Math.round(data_city.list[day + ke].main.temp_min - 273.15);
+        if (get_tempmin_next_time < 0) {
+          return `(${get_tempmin_next_time})`;
+        } else {
+          return get_tempmin_next_time;
         }
+      }
 
-        sub_content_wrap.innerHTML += `
+      function take_time(ke) {
+        var tk_tm = data_city.list[day + ke].dt_txt.split(' ');
+        tk_tm = tk_tm[1];
+        tk_tm = tk_tm.split(':');
+        tk_tm = tk_tm[0] + ":" + tk_tm[1];
+        return tk_tm;
+      }
+      sub_content_wrap.innerHTML += `
         <div class="sub-content glassMorph">
         <h5 class="date-forecast">${get_date_forecast}</h5>
 
-        <div class="forecast-wrap">
+        <div id="forecast-wrap" class="forecast-wrap">
           <h4 class="title-forecast">${data_city.list[day].weather[0].main}</h4>
           <img class="sm-weather-icon" src="http://openweathermap.org/img/w/${data_city.list[day].weather[0].icon}.png" alt="Weather Icon">
           <h3 class="degree-forecast">${get_temp_min_forecast}&deg;C - ${get_temp_max_forecast}&deg;C</h3>
+          
           <table class="timelist-forecast-wrap">
             <tr>
-              <td>15:00</td>
+              <td>${take_time(1)}</td>
               <td>-</td>
-              <td>Thunderstorm</td>
+              <td>${get_weather(1)}</td>
             </tr>
             <tr>
-              <td>18:00</td>
+              <td>${take_time(2)}</td>
               <td>-</td>
-              <td>Thunderstorm</td>
+              <td>${get_weather(2)}</td>
             </tr>
           </table>
+
+          <hr>
+          <h5 class="timelist-title">Timelist</h5>
+
+          <div class="time-hourly-forecast">
+            <h4 class="title-forecast">${take_time(1)}</h4>
+            <p class="subtitle-hourly-forecast">${get_weather(1)}<br>${get_tempmin(1)}&deg;C - ${get_tempmax(1)}&deg;C<br>${get_clouds(1)}% Cloudiness</p>
+          </div>
+
+          <div class="time-hourly-forecast">
+            <h4 class="title-forecast">${take_time(2)}</h4>
+            <p class="subtitle-hourly-forecast">${get_weather(2)}<br>${get_tempmin(2)}&deg;C - ${get_tempmax(2)}&deg;C<br>${get_clouds(2)}% Cloudiness</p>
+          </div>
+
+          <div class="time-hourly-forecast">
+            <h4 class="title-forecast">${take_time(3)}</h4>
+            <p class="subtitle-hourly-forecast">${get_weather(3)}<br>${get_tempmin(3)}&deg;C - ${get_tempmax(3)}&deg;C<br>${get_clouds(3)}% Cloudiness</p>
+          </div>
+
+          <div class="time-hourly-forecast">
+            <h4 class="title-forecast">${take_time(4)}</h4>
+            <p class="subtitle-hourly-forecast">${get_weather(4)}<br>${get_tempmin(4)}&deg;C - ${get_tempmax(4)}&deg;C<br>${get_clouds(4)}% Cloudiness</p>
+          </div>
+          
+
         </div>
-
-        <div class="sub-forecast-wrap">
-          <div class="time-hourly-forecast">
-            <h4 class="title-forecast">15:00</h4>
-            <p class="subtitle-hourly-forecast">Cloudy<br>30&deg;C - 31&deg;C<br>90% Cloudiness</p>
-          </div>
-
-          <div class="time-hourly-forecast">
-            <h4 class="title-forecast">18:00</h4>
-            <p class="subtitle-hourly-forecast">Cloudy<br>30&deg;C - 31&deg;C<br>90% Cloudiness</p>
-          </div>
-
-          <div class="time-hourly-forecast">
-            <h4 class="title-forecast">01:00</h4>
-            <p class="subtitle-hourly-forecast">Cloudy<br>30&deg;C - 31&deg;C<br>90% Cloudiness</p>
-          </div>
-
-        </div>
-
-        <h5 id="button-forecast" class="sm-button-forecast">more info</h5>
 
       </div>
         `;
-      }
-    }, "json");
-  }, "json");
-});
+
+
+    }
+
+  }
+
+}
