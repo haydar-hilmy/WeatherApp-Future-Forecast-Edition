@@ -107,7 +107,7 @@ $(document).ready(function () {
         `;
         }
 
-      }, "json")
+      }, "json").fail(cityNotFound);
 
     }
 
@@ -119,23 +119,17 @@ form.addEventListener('submit', (event) => {
   event.preventDefault();
   const city = document.getElementById("city-input").value;
   const apiKey = 'c0c083bc03d9f002ce678129d69335ba';
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      for (let i = 0; i < data.list.length; i++) {
-        const forecast = data.list[i];
-        const date = new Date(forecast.dt * 1000).toLocaleDateString();
-        const jam = forecast.dt_txt;
-        const temp = forecast.main.temp.toFixed(1);
-        const desc = forecast.weather[0].description;
-        const icon = forecast.weather[0].icon;
-      }
+      get_data_city(data);
+      cityFound();
     })
     .catch(error => {
-      console.log(error);
+      cityNotFound();
     });
 });
 
@@ -166,14 +160,19 @@ $(document).ready(function () {
 
       get_data_city(data_city);
       cityFound();
-    }, "json").fail(function () {
-      // cityNotFound();
-    });
-  }, "json").fail(function () {
-    // cityNotFound();
-  });
+    }, "json").fail(cityNotFound);
+  }, "json").fail(cityNotFound);
 });
 
+function cityNotFound() {
+  $(".title-weather").show(200);
+  $(".title-weather").text("404 Not Found");
+  $(".detail-location").hide();
+  $(".lar-weather-icon").hide();
+  $(".sub-info-wrap").hide();
+  $(".sub-content-wrap").show(200);
+  $(".date-forecast").text("404 Not Found");
+}
 
 function cityFound(params) {
   $(".title-weather").hide();
