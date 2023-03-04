@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="cloudy-forecast.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+  <script src="https://kit.fontawesome.com/a502a8bc22.js" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <link rel="stylesheet" href="mystyle.css">
+  <title>Weather App - Five Days Forecast</title>
+</head>
+
+<body>
+
+  <div class="allContent">
+
+    <form id="city-form" class="input-wrap">
+      <input id="city-input" autofocus required class="input-search glassMorph" type="text" placeholder="Enter Location">
+      <button class="button-search glassMorph" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <div class="suggestion-search-wrap">
+      </div>
+    </form>
+
+    <div class="content-wrap glassMorph">
+      <h2 id="title-weather" class="title-weather"></h2>
+      <h5 id="detail-location" class="detail-location"></h5>
+      <img id="lar-weather-icon" class="lar-weather-icon" src="cloudy.png" alt="Weather Icon">
+      <div class="sub-info-wrap">
+        <h3 id="main-temp" class="lar-info"></h3>
+        <h5 class="md-sub-info">Temperature</h5>
+      </div>
+
+      <div class="info-wrap">
+
+        <div class="sub-info-wrap">
+          <h3 id="main-temp-min" class="md-info"></h3>
+          <h5 class="md-sub-info">Temp Min</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-temp-max" class="md-info"></h3>
+          <h5 class="md-sub-info">Temp Max</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-pressure" class="md-info"></h3>
+          <h5 class="md-sub-info">Pressure</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-humidity" class="md-info"></h3>
+          <h5 class="md-sub-info">Humidity</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-windspeed" class="md-info"></h3>
+          <h5 class="md-sub-info">Wind speed</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-winddir" class="md-info"></h3>
+          <h5 class="md-sub-info">Wind direction</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-feelslike" class="md-info"></h3>
+          <h5 class="md-sub-info">Feels like</h5>
+        </div>
+
+        <div class="sub-info-wrap">
+          <h3 id="main-cloud" class="md-info"></h3>
+          <h5 class="md-sub-info">Cloudiness</h5>
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div id="sub-content-wrap" class="sub-content-wrap">
+      <!-- SHOW FORECAST -->
+
+
+    </div>
+
+    <footer>
+      Support by <a class="link-text" href="https://openweathermap.org/" target="_blank">openweathermap.org</a><br>Developed by Haydar Hilmy<br>Support developer nya cuy wkwk<br><a href="https://saweria.co/haydarhilmy" target="_blank"><button class="button-support">Saweria</button></a>
+    </footer>
+
+
+
+
+  </div>
+
+<script src="index.js"></script>
+</body>
+
+</html>
